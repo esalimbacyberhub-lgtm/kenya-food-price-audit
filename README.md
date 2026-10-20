@@ -51,7 +51,7 @@ None of these steps modifies the raw data.
 
 ## Data attribution
 
-[Andrée, B. P. J. (2021). Monthly food price estimates by product and market (Version 2026-10-05). KEN_2021_RTFP_v02_M. Washington, DC: World Bank Microdata Library. https://doi.org/10.48529/2ZH0-JF55 (accessed 20 October 2026)]
+Andrée, B. P. J. (2021). Monthly food price estimates by product and market (Version 2026-10-05). KEN_2021_RTFP_v02_M. Washington, DC: World Bank Microdata Library. https://doi.org/10.48529/2ZH0-JF55 (accessed 20 October 2026)
 
 This analysis is my own and is not endorsed by the World Bank.
 
