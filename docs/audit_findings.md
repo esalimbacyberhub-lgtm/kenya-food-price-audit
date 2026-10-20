@@ -376,6 +376,26 @@ Output:
 {'number_of_markets_modeled': 233, 'number_of_observations_food': 'beans: 1906, maize_fao: 3039', 'number_of_observations_other': 'livestock_goat_s_fao: 2603'}
 ```
 
+The details file also reports `imputation_model` as cubist (Andree, 2021), `data_coverage_food` of 4.46%, and imputation R-squared values of 0.98 (beans), 0.97 (maize) and 0.97 (goat). As written in the file, `imputation_model` lists beans twice and does not list `livestock_goat_s_fao`.
+
+```bash
+python3 -I - <<'EOF'
+import pandas as pd
+d = pd.read_csv("data/raw/KEN_RTP_details_mkt_2007_2026-10-05.csv")
+for c in ["imputation_model", "data_coverage_food", "Rsquared_individual_food_items", "Rsquared_individual_other_items"]:
+    print(f"{c}: {d[c].iloc[0]}")
+EOF
+```
+
+Output:
+
+```
+imputation_model: beans: cubist (Andree, 2021), maize_fao: cubist (Andree, 2021), beans: cubist (Andree, 2021)
+data_coverage_food: 4.46%
+Rsquared_individual_food_items: beans: 0.98, maize_fao: 0.97
+Rsquared_individual_other_items: livestock_goat_s_fao: 0.97
+```
+
 ## Corrections to earlier statements
 
 - Observed maize and goat prices were first reported as stopping in May 2023. They stop after **January 2023** (section 5).
@@ -384,7 +404,8 @@ Output:
 
 ## Not verified (interpretation or outside knowledge)
 
-- That `c_*` is a model estimate and the non-empty raw columns are observations: consistent with the metadata (trust scores, details-file "imputation_model") and with the near-exact matches in section 4, but not documented in the file itself.
-- That the food price index is contaminated by the goat series despite "Index Weight = 0": inferred from the timing in sections 6 and 7, not from the index formula.
-- That some `adm1_name`/`adm2_name` values (e.g. "Moyale", "Ongata Rongai", "Hola (Tana River)") are at the wrong administrative level: based on knowledge of Kenyan geography, not checked against a boundary file.
+- That `c_*` is a model estimate and the non-empty raw columns are observations: consistent with the details file (`imputation_model`, data coverage of about 4.5%, imputation R-squared values) but not documented in the file itself.
+- That the rise in the food price index over the same period may reflect the goat series despite "Index Weight = 0": inferred from the timing in sections 6 and 7 only, not from the index formula.
+- That some `adm1_name`/`adm2_name` values (e.g. "Moyale", "Ongata Rongai", "Hola (Tana River)") may not match the administrative level of other entries: based on my knowledge of Kenyan geography, not checked against a boundary file.
 - Why `Market Average` sits 7–9% below the simple mean (likely a weighted or geometric mean).
+- Whether the close agreement between observed and `c_` prices where both exist reflects accuracy or simply that the model was fitted to those observations: not tested here, since no independent observations were used.
