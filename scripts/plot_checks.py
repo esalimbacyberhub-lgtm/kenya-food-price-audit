@@ -94,16 +94,21 @@ def plot_medians(df, out):
         "c_goat": g.c_livestock_goat_s_fao.median(),
         "obs_goat": g.livestock_goat_s_fao.median(),  # median over markets that reported
         "c_maize": g.c_maize_fao.median(),
+        "obs_maize": g.maize_fao.median(),  # median over markets that reported
         "c_beans": g.c_beans.median(),
         "c_fpi": g.c_food_price_index.median(),
     })
+    # Stop at the last survey point (Sep 2026); later months are model only
+    last_survey = pd.to_datetime(df.last_survey_point.iloc[0], format="%b %Y")
+    med = med[med.index <= last_survey]
     obs_max = df.livestock_goat_s_fao.max()
 
     # One panel per unit; shared x, independent y. Never a dual axis.
     panels = [
         ("Goat price (KES per head)", [("c_goat", "c_ (modelled)", BLUE),
                                        ("obs_goat", "Observed", ORANGE)]),
-        ("Maize price (KES per kg)", [("c_maize", "c_ (modelled)", BLUE)]),
+        ("Maize price (KES per kg)", [("c_maize", "c_ (modelled)", BLUE),
+                                      ("obs_maize", "Observed", ORANGE)]),
         ("Beans price (KES per kg)", [("c_beans", "c_ (modelled)", BLUE)]),
         ("Food price index (Jan 2018 = 1)", [("c_fpi", "c_ (modelled)", BLUE)]),
     ]
@@ -112,8 +117,8 @@ def plot_medians(df, out):
         shade_gap(ax, label=(i == 0))
         for col, label, color in series:
             s = med[col]
-            # Observed goat is sparse: draw points so gaps stay visible
-            if col == "obs_goat":
+            # Observed series are sparse: draw points so gaps stay visible
+            if col.startswith("obs_"):
                 ax.plot(s.index, s, "o", ms=3, color=color, label=label, zorder=3)
             else:
                 ax.plot(s.index, s, color=color, label=label, zorder=3)
@@ -126,14 +131,17 @@ def plot_medians(df, out):
                      (med.index[0], obs_max), xytext=(0, 4), textcoords="offset points",
                      fontsize=8, color=INK_2)
     axes[0].legend(loc="upper left", bbox_to_anchor=(0, 0.88), fontsize=9)
+    axes[1].legend(loc="upper left", fontsize=9)
     axes[-1].xaxis.set_major_locator(mdates.YearLocator(2))
     axes[-1].xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
     fig.suptitle("Monthly median across 233 markets", x=0.06, ha="left",
                  fontsize=13, fontweight="bold")
     fig.text(0.06, 0.945, "Observed goat = median over markets reporting that month. "
-             "Goat has Index Weight = 0, yet the index follows its 2023–24 spike.",
+             "Goat has Index Weight = 0; the index rises over the same period.",
              fontsize=9, color=INK_2)
-    fig.tight_layout(rect=(0, 0, 1, 0.94))
+    fig.text(0.98, 0.005, f"Lines end at {last_survey:%b %Y}, the last survey point; "
+             "Oct 2026 is model only and not shown.", ha="right", fontsize=8, color=INK_2)
+    fig.tight_layout(rect=(0, 0.02, 1, 0.94))
     fig.savefig(out, dpi=150)
     plt.close(fig)
 
