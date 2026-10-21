@@ -3,7 +3,9 @@
 Read-only on the raw data: loads the CSV and writes PNGs to outputs/figures/.
 
     1. check_medians.png       monthly cross-market medians of c_goat, observed goat,
-                               c_maize, c_beans, c_food_price_index (Feb 2023-Dec 2025 shaded)
+                               c_maize, observed maize, c_beans, c_food_price_index, plus
+                               c_ goat and maize over reporting markets only
+                               (Feb 2023-Dec 2025 shaded)
     2. check_obs_vs_close.png  observed vs c_ scatter for maize and beans, +/-25% band
     3. check_obs_counts.png    markets with an observed price per month, per item
 
@@ -29,6 +31,8 @@ OUT_DIR = ROOT / "outputs/figures"
 # Jan 2026 so that December 2025 is fully shaded.
 GAP_START, GAP_END = pd.Timestamp("2023-02-01"), pd.Timestamp("2026-01-01")
 GAP_LABEL = "No observed goat\nor maize prices"
+OBS_LABEL = "Observed (median of reporting markets)"
+SAME_LABEL = "Modelled, same markets"
 BAND = 0.25  # relative disagreement band for the scatter: |c - obs| / obs <= 25%
 
 # Palette: first three categorical slots of the reference palette (validated all-pairs,
@@ -90,11 +94,17 @@ def shade_gap(ax, label=False):
 # --------------------------------------------------------------------------- 1
 def plot_medians(df, out):
     g = df.groupby("price_date")
+    # Modelled median over only the markets that reported an observed price that month,
+    # so it can be compared like-for-like with the observed median
+    same = {item: df[df[item].notna()].groupby("price_date")[f"c_{item}"].median()
+            for item in ["livestock_goat_s_fao", "maize_fao"]}
     med = pd.DataFrame({
         "c_goat": g.c_livestock_goat_s_fao.median(),
         "obs_goat": g.livestock_goat_s_fao.median(),  # median over markets that reported
+        "same_goat": same["livestock_goat_s_fao"],
         "c_maize": g.c_maize_fao.median(),
         "obs_maize": g.maize_fao.median(),  # median over markets that reported
+        "same_maize": same["maize_fao"],
         "c_beans": g.c_beans.median(),
         "c_fpi": g.c_food_price_index.median(),
     })
@@ -106,9 +116,11 @@ def plot_medians(df, out):
     # One panel per unit; shared x, independent y. Never a dual axis.
     panels = [
         ("Goat price (KES per head)", [("c_goat", "c_ (modelled)", BLUE),
-                                       ("obs_goat", "Observed", ORANGE)]),
+                                       ("obs_goat", OBS_LABEL, ORANGE),
+                                       ("same_goat", SAME_LABEL, BLUE)]),
         ("Maize price (KES per kg)", [("c_maize", "c_ (modelled)", BLUE),
-                                      ("obs_maize", "Observed", ORANGE)]),
+                                      ("obs_maize", OBS_LABEL, ORANGE),
+                                      ("same_maize", SAME_LABEL, BLUE)]),
         ("Beans price (KES per kg)", [("c_beans", "c_ (modelled)", BLUE)]),
         ("Food price index (Jan 2018 = 1)", [("c_fpi", "c_ (modelled)", BLUE)]),
     ]
@@ -120,6 +132,9 @@ def plot_medians(df, out):
             # Observed series are sparse: draw points so gaps stay visible
             if col.startswith("obs_"):
                 ax.plot(s.index, s, "o", ms=3, color=color, label=label, zorder=3)
+            # NaN in months with no reporting markets, so the line breaks there
+            elif col.startswith("same_"):
+                ax.plot(s.index, s, "--", lw=1, color=color, label=label, zorder=4)
             else:
                 ax.plot(s.index, s, color=color, label=label, zorder=3)
         ax.set_title(title, pad=18 if i == 0 else 8)
@@ -136,12 +151,16 @@ def plot_medians(df, out):
     axes[-1].xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
     fig.suptitle("Monthly median across 233 markets", x=0.06, ha="left",
                  fontsize=13, fontweight="bold")
-    fig.text(0.06, 0.945, "Observed goat = median over markets reporting that month. "
-             "Goat has Index Weight = 0; the index rises over the same period.",
+    fig.text(0.06, 0.945, "Goat has Index Weight = 0; the index rises over the same period.",
              fontsize=9, color=INK_2)
+    fig.text(0.98, 0.045, "Solid modelled line = median of all 233 markets; observed dots = "
+             "median of the markets that reported, so they are not like-for-like.",
+             ha="right", fontsize=8, color=INK_2)
+    fig.text(0.98, 0.025, "The dashed line tracks the dots closely because the model uses "
+             "these observations.", ha="right", fontsize=8, color=INK_2)
     fig.text(0.98, 0.005, f"Lines end at {last_survey:%b %Y}, the last survey point; "
              "Oct 2026 is model only and not shown.", ha="right", fontsize=8, color=INK_2)
-    fig.tight_layout(rect=(0, 0.02, 1, 0.94))
+    fig.tight_layout(rect=(0, 0.06, 1, 0.94))
     fig.savefig(out, dpi=150)
     plt.close(fig)
 

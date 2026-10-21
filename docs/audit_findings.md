@@ -4,6 +4,22 @@ Every number below was produced by the command shown directly beneath it, run fr
 
 Charts: `python3 scripts/plot_checks.py` writes `outputs/figures/check_medians.png`, `check_obs_vs_close.png` and `check_obs_counts.png`. The shaded period in the first and third is 2023-02 to 2025-12 (no observed goat or maize prices; see section 5).
 
+## Raw file checksum
+
+The CSV used here is byte-identical to the copy inside the downloaded zip.
+
+```bash
+sha256sum data/raw/KEN_RTFP_mkt_2007_2026-10-05.csv
+unzip -p data/raw/KEN_RTFP_mkt_2007_2026-10-05.zip KEN_RTFP_mkt_2007_2026-10-05.csv | sha256sum
+```
+
+Output:
+
+```
+b0c4cdcf0a785667ba6e8786498f433f5c15bd50d44279b94fbfdbee3e857fc3  data/raw/KEN_RTFP_mkt_2007_2026-10-05.csv
+b0c4cdcf0a785667ba6e8786498f433f5c15bd50d44279b94fbfdbee3e857fc3  -
+```
+
 ## 1. Structure
 
 - 55,692 rows × 46 columns.
@@ -182,11 +198,11 @@ raw obs in 2026-10: {'beans': 0, 'maize_fao': 0, 'livestock_goat_s_fao': 0}
 ## 6. Goat price spike
 
 - Highest observed goat price anywhere: 8,028 KES. Highest `c_livestock_goat_s_fao`: 28,380.59.
-- 16 markets report goat prices in each month of 2022-10 to 2023-01 and 2026-01 to 2026-03; 0 in between.
+- 16 markets report goat prices in each month of 2022-10 to 2023-01 and 2026-01 to 2026-08; 0 in between.
 - Median `c_goat` rises from 3,234 (2023-01, last observed month) to a peak of **22,299 in 2024-01**, then settles at 5,022–5,532 from 2024-06 to 2025-12.
 - Share of 233 markets with `c_goat` > 8,028: 13.7% (2023-04), 48.9% (2023-05), 97.0% (2023-06), 99.6% (2023-07), **100% every month 2023-08 to 2024-03**, 84.5% (2024-04).
 - Outside 2023-04 to 2024-04, markets above 8,028: 2 in 2023-03, 2 in 2024-05, 2 in 2026-08, 2 in 2026-09, 7 in 2026-10.
-- When observations resume, observed medians (5,224 / 5,132 / 5,650 for 2026-01 to 03) are close to `c_` medians (4,920 / 5,142 / 5,518).
+- When observations resume, the observed medians for 2026-01 to 03 (5,224 / 5,132 / 5,650) cover only the 16 markets that reported. The `c_` medians for those same markets are identical (section 11); the `c_` medians across all 233 markets (4,920 / 5,142 / 5,518) include the 217 markets that did not report, so they are not like-for-like with the observed medians.
 
 ```bash
 python3 -I - <<'EOF'
@@ -204,7 +220,7 @@ t = pd.DataFrame({
 })
 t["pct_c_above_max"] = (100 * t.n_c_above_max / df.mkt_name.nunique()).round(1)
 t.index = t.index.strftime("%Y-%m")
-print(t.loc["2022-10":"2026-03"].to_string(na_rep="-"))
+print(t.loc["2022-10":"2026-08"].to_string(na_rep="-"))
 print("months outside 2023-04..2024-04 with any c_goat > max:",
       t[(t.n_c_above_max > 0) & ~t.index.to_series().between("2023-04", "2024-04")].n_c_above_max.to_dict())
 EOF
@@ -258,6 +274,11 @@ price_date
 2026-01            4920.0           5224.0           16              0              0.0
 2026-02            5142.0           5132.0           16              0              0.0
 2026-03            5518.0           5650.0           16              0              0.0
+2026-04            5504.0           5972.0           16              0              0.0
+2026-05            5689.0           6204.0           16              0              0.0
+2026-06            5884.0           6176.0           16              0              0.0
+2026-07            5938.0           6010.0           16              0              0.0
+2026-08            6014.0           6212.0           16              2              0.9
 months outside 2023-04..2024-04 with any c_goat > max: {'2023-03': 2, '2024-05': 2, '2026-08': 2, '2026-09': 2, '2026-10': 7}
 ```
 
@@ -394,6 +415,95 @@ imputation_model: beans: cubist (Andree, 2021), maize_fao: cubist (Andree, 2021)
 data_coverage_food: 4.46%
 Rsquared_individual_food_items: beans: 0.98, maize_fao: 0.97
 Rsquared_individual_other_items: livestock_goat_s_fao: 0.97
+```
+
+## 11. Observed vs modelled medians in the same markets (2026)
+
+The observed median covers only the markets that reported that month; the `c_` median in sections 6 and 7 covers all 233. This section compares the observed median with the `c_` median over the same reporting markets.
+
+- From 2026-01 to 2026-08 the same 16 markets report maize every month, and the same 16 report goat every month; none report either in 2026-09 or 2026-10.
+- From 2026-01 onwards, the 16 maize-reporting markets and the 16 goat-reporting markets are the same set.
+- Maize: the observed median in the reporting markets falls from 83.0 (2026-01) to 56.0 (2026-08). The `c_` median for the same markets equals it in 7 of 8 months (63.4 vs 65.5 in 2026-06). The all-233 `c_` median is 3.5 to 17.4 above the observed median in every month.
+- Goat: the `c_` median for the same markets equals the observed median in all 8 months. The all-233 `c_` median ranges from 10 above to 514 below the observed median.
+- The same-markets agreement follows from section 4: where an observed price exists, `c_` usually equals it.
+
+```bash
+python3 -I - <<'EOF'
+import pandas as pd
+df = pd.read_csv("data/raw/KEN_RTFP_mkt_2007_2026-10-05.csv", parse_dates=["price_date"])
+df = df[df.mkt_name != "Market Average"]
+for item in ["maize_fao", "livestock_goat_s_fao"]:
+    rep = df[df[item].notna()]
+    g, gr = df.groupby("price_date"), rep.groupby("price_date")
+    t = pd.DataFrame({
+        "obs_median": gr[item].median(),
+        "c_median_same_mkts": gr[f"c_{item}"].median(),
+        "c_median_all_233": g[f"c_{item}"].median(),
+        "n_reporting": g[item].count(),
+    }).round(1)
+    t.index = t.index.strftime("%Y-%m")
+    print(item)
+    print(t.loc["2026-01":].to_string(na_rep="-"))
+    sets = rep[rep.price_date >= "2026-01-01"].groupby("price_date").mkt_name.apply(frozenset)
+    print("distinct sets of reporting markets, 2026-01 onward:", sets.nunique())
+EOF
+```
+
+Output:
+
+```
+maize_fao
+            obs_median  c_median_same_mkts  c_median_all_233  n_reporting
+price_date                                                               
+2026-01           83.0                83.0              86.5           16
+2026-02           74.0                74.0              85.0           16
+2026-03           74.5                74.5              84.2           16
+2026-04           69.0                69.0              84.2           16
+2026-05           66.0                66.0              83.4           16
+2026-06           65.5                63.4              79.8           16
+2026-07           59.0                59.0              74.6           16
+2026-08           56.0                56.0              67.6           16
+2026-09              -                   -              66.9            0
+2026-10              -                   -              67.0            0
+distinct sets of reporting markets, 2026-01 onward: 1
+livestock_goat_s_fao
+            obs_median  c_median_same_mkts  c_median_all_233  n_reporting
+price_date                                                               
+2026-01         5223.5              5223.5            4920.1           16
+2026-02         5132.0              5132.0            5142.0           16
+2026-03         5650.0              5650.0            5517.6           16
+2026-04         5972.5              5972.5            5504.1           16
+2026-05         6203.5              6203.5            5689.1           16
+2026-06         6176.0              6176.0            5884.1           16
+2026-07         6010.0              6010.0            5938.2           16
+2026-08         6212.5              6212.5            6014.4           16
+2026-09              -                   -            5975.6            0
+2026-10              -                   -            6109.1            0
+distinct sets of reporting markets, 2026-01 onward: 1
+```
+
+```bash
+python3 -I - <<'EOF'
+import pandas as pd
+df = pd.read_csv("data/raw/KEN_RTFP_mkt_2007_2026-10-05.csv", parse_dates=["price_date"])
+df = df[df.mkt_name != "Market Average"]
+d = df[df.price_date >= "2026-01-01"]
+maize = set(d.loc[d.maize_fao.notna(), "mkt_name"])
+goat = set(d.loc[d.livestock_goat_s_fao.notna(), "mkt_name"])
+print("maize-reporting markets", len(maize), "| goat-reporting markets", len(goat), "| in both", len(maize & goat))
+print("same set:", maize == goat)
+print("maize only:", sorted(maize - goat))
+print("goat only:", sorted(goat - maize))
+EOF
+```
+
+Output:
+
+```
+maize-reporting markets 16 | goat-reporting markets 16 | in both 16
+same set: True
+maize only: []
+goat only: []
 ```
 
 ## Corrections to earlier statements
