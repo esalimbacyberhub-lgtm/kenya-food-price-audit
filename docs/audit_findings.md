@@ -680,11 +680,17 @@ price_date
 - The goat spike was first framed as April 2023 to April 2024. The rise starts in **February 2023**, the month after the last observation; April 2023 to April 2024 is only the stretch where many markets exceed the observed maximum (section 6).
 - The food price index peak was first quoted as about 6.3 in December 2023, from quarterly sampling. The monthly peak is **7.58 in January 2024** (section 7).
 
+## Method reference
+
+The details file (`KEN_RTP_details_mkt_2007_2026-10-05.csv`) lists the imputation model as "cubist (Andree, 2021)". The paper is Andrée (2021), Policy Research Working Paper 9886, https://doi.org/10.1596/1813-9450-9886. It describes chained machine-learning imputation that uses relations between items and nearby markets. The imputation is validated by 4-fold cross-validation on held-out observed prices, with an average score of 0.85 across 25 countries. Kenya is not among those countries, and the paper dates from 2021.
+
 ## Not verified (interpretation or outside knowledge)
 
-- That `c_*` is a model estimate and the non-empty raw columns are observations: consistent with the details file (`imputation_model`, data coverage of about 4.5%, imputation R-squared values) but not documented in the file itself.
+- That `c_*` is a model estimate and the non-empty raw columns are observations: the imputation approach is documented by the producer (see the Method reference section); this is consistent with the details file (`imputation_model`, data coverage of about 4.5%, imputation R-squared values), but the main CSV does not say so itself.
 - That the rise in the food price index over the same period may reflect the goat series despite "Index Weight = 0": inferred from the timing in sections 6 and 7 only, not from the index formula.
 - That some `adm1_name`/`adm2_name` values (e.g. "Moyale", "Ongata Rongai", "Hola (Tana River)") may not match the administrative level of other entries: based on my knowledge of Kenyan geography, not checked against a boundary file.
 - Why `Market Average` sits 7–9% below the simple mean (likely a weighted or geometric mean).
 - Whether the close agreement between observed and `c_` prices where both exist reflects accuracy or simply that the model was fitted to those observations: not tested here, since no independent observations were used.
 - Why maize differs across releases (units or item definitions): not established.
+- Whether the producer's validation covers multi-year gaps like February 2023 to December 2025 in the Kenya series: not established.
+- Why the food price index rises about 6.7 times between January 2023 and January 2024 while maize and beans move far less: the 2021 paper describes the index as a sum of item prices; not established.
