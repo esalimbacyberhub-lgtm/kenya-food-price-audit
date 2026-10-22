@@ -1,0 +1,103 @@
+
+================================================================================
+1. VERSION OVERVIEW (Market Average row dropped)
+================================================================================
+
+2024-01-23
+  rows:        11,685
+  markets:     57
+  last month:  2024-01
+  columns only in this version: ['maize', 'potatoes', 'sorghum', 'o_maize', 'h_maize', 'l_maize', 'c_maize', 'inflation_maize', 'trust_maize', 'o_potatoes', 'h_potatoes', 'l_potatoes', 'c_potatoes', 'inflation_potatoes', 'trust_potatoes', 'o_sorghum', 'h_sorghum', 'l_sorghum', 'c_sorghum', 'inflation_sorghum', 'trust_sorghum']
+  current columns missing here: ['beans', 'livestock_goat_s_fao', 'maize_fao', 'o_beans', 'h_beans', 'l_beans', 'c_beans', 'inflation_beans', 'trust_beans', 'o_livestock_goat_s_fao', 'h_livestock_goat_s_fao', 'l_livestock_goat_s_fao', 'c_livestock_goat_s_fao', 'inflation_livestock_goat_s_fao', 'trust_livestock_goat_s_fao', 'o_maize_fao', 'h_maize_fao', 'l_maize_fao', 'c_maize_fao', 'inflation_maize_fao', 'trust_maize_fao']
+  goat median peak: n/a  n/a
+
+2025-01-13
+  rows:        13,454
+  markets:     62
+  last month:  2025-01
+  columns only in this version: ['maize', 'sorghum', 'o_maize', 'h_maize', 'l_maize', 'c_maize', 'inflation_maize', 'trust_maize', 'o_sorghum', 'h_sorghum', 'l_sorghum', 'c_sorghum', 'inflation_sorghum', 'trust_sorghum']
+  current columns missing here: ['livestock_goat_s_fao', 'maize_fao', 'o_livestock_goat_s_fao', 'h_livestock_goat_s_fao', 'l_livestock_goat_s_fao', 'c_livestock_goat_s_fao', 'inflation_livestock_goat_s_fao', 'trust_livestock_goat_s_fao', 'o_maize_fao', 'h_maize_fao', 'l_maize_fao', 'c_maize_fao', 'inflation_maize_fao', 'trust_maize_fao']
+  goat median peak: n/a  n/a
+
+2026-01-13
+  rows:        51,754
+  markets:     226
+  last month:  2026-01
+  columns only in this version: ['beans_fao', 'sorghum', 'o_beans_fao', 'h_beans_fao', 'l_beans_fao', 'c_beans_fao', 'inflation_beans_fao', 'trust_beans_fao', 'o_sorghum', 'h_sorghum', 'l_sorghum', 'c_sorghum', 'inflation_sorghum', 'trust_sorghum']
+  current columns missing here: ['beans', 'livestock_goat_s_fao', 'o_beans', 'h_beans', 'l_beans', 'c_beans', 'inflation_beans', 'trust_beans', 'o_livestock_goat_s_fao', 'h_livestock_goat_s_fao', 'l_livestock_goat_s_fao', 'c_livestock_goat_s_fao', 'inflation_livestock_goat_s_fao', 'trust_livestock_goat_s_fao']
+  goat median peak: n/a  n/a
+
+2026-03-10
+  rows:        52,206
+  markets:     226
+  last month:  2026-03
+  columns only in this version: ['beans_fao', 'maize', 'o_beans_fao', 'h_beans_fao', 'l_beans_fao', 'c_beans_fao', 'inflation_beans_fao', 'trust_beans_fao', 'o_maize', 'h_maize', 'l_maize', 'c_maize', 'inflation_maize', 'trust_maize']
+  current columns missing here: ['beans', 'livestock_goat_s_fao', 'o_beans', 'h_beans', 'l_beans', 'c_beans', 'inflation_beans', 'trust_beans', 'o_livestock_goat_s_fao', 'h_livestock_goat_s_fao', 'l_livestock_goat_s_fao', 'c_livestock_goat_s_fao', 'inflation_livestock_goat_s_fao', 'trust_livestock_goat_s_fao']
+  goat median peak: n/a  n/a
+
+2026-09-28
+  rows:        55,221
+  markets:     233
+  last month:  2026-09
+  columns: identical to current file
+  goat median peak: 2024-01  20,693.55
+
+2026-10-05
+  rows:        55,454
+  markets:     233
+  last month:  2026-10
+  columns: identical to current file
+  goat median peak: 2024-01  22,298.97
+
+================================================================================
+2. MONTHLY MEDIAN c_livestock_goat_s_fao, 2022-10 to 2024-06
+================================================================================
+(cell = median of c_ across markets / markets with an observed goat price)
+
+        2024-01-23 2025-01-13 2026-01-13 2026-03-10     2026-09-28     2026-10-05
+month                                                                            
+2022-10  n/a / n/a  n/a / n/a  n/a / n/a  n/a / n/a  2,770.34 / 16  2,796.03 / 16
+2022-11  n/a / n/a  n/a / n/a  n/a / n/a  n/a / n/a  2,931.60 / 16  2,956.28 / 16
+2022-12  n/a / n/a  n/a / n/a  n/a / n/a  n/a / n/a  3,078.35 / 16  3,140.00 / 16
+2023-01  n/a / n/a  n/a / n/a  n/a / n/a  n/a / n/a  3,199.72 / 16  3,234.16 / 16
+2023-02  n/a / n/a  n/a / n/a  n/a / n/a  n/a / n/a   4,080.50 / 0   4,163.98 / 0
+2023-03  n/a / n/a  n/a / n/a  n/a / n/a  n/a / n/a   5,454.78 / 0   5,591.88 / 0
+2023-04  n/a / n/a  n/a / n/a  n/a / n/a  n/a / n/a   6,649.43 / 0   7,050.21 / 0
+2023-05  n/a / n/a  n/a / n/a  n/a / n/a  n/a / n/a   7,644.60 / 0   7,992.47 / 0
+2023-06  n/a / n/a  n/a / n/a  n/a / n/a  n/a / n/a   8,374.92 / 0   9,431.62 / 0
+2023-07  n/a / n/a  n/a / n/a  n/a / n/a  n/a / n/a   9,064.64 / 0  10,340.71 / 0
+2023-08  n/a / n/a  n/a / n/a  n/a / n/a  n/a / n/a  10,167.20 / 0  11,704.45 / 0
+2023-09  n/a / n/a  n/a / n/a  n/a / n/a  n/a / n/a  11,737.52 / 0  13,386.56 / 0
+2023-10  n/a / n/a  n/a / n/a  n/a / n/a  n/a / n/a  13,189.06 / 0  14,814.87 / 0
+2023-11  n/a / n/a  n/a / n/a  n/a / n/a  n/a / n/a  14,973.40 / 0  16,841.58 / 0
+2023-12  n/a / n/a  n/a / n/a  n/a / n/a  n/a / n/a  16,691.05 / 0  18,633.41 / 0
+2024-01  n/a / n/a  n/a / n/a  n/a / n/a  n/a / n/a  20,693.55 / 0  22,298.97 / 0
+2024-02  n/a / n/a  n/a / n/a  n/a / n/a  n/a / n/a  17,093.54 / 0  19,100.49 / 0
+2024-03  n/a / n/a  n/a / n/a  n/a / n/a  n/a / n/a  14,002.72 / 0  15,839.08 / 0
+2024-04  n/a / n/a  n/a / n/a  n/a / n/a  n/a / n/a   8,591.84 / 0   9,446.88 / 0
+2024-05  n/a / n/a  n/a / n/a  n/a / n/a  n/a / n/a   5,995.71 / 0   6,386.16 / 0
+2024-06  n/a / n/a  n/a / n/a  n/a / n/a  n/a / n/a   5,057.99 / 0   5,459.14 / 0
+
+================================================================================
+2. MONTHLY MEDIAN c_livestock_goat_s_fao, 2025-12 to 2026-04
+================================================================================
+(cell = median of c_ across markets / markets with an observed goat price)
+
+        2024-01-23 2025-01-13 2026-01-13 2026-03-10     2026-09-28     2026-10-05
+month                                                                            
+2025-12  n/a / n/a  n/a / n/a  n/a / n/a  n/a / n/a   4,997.57 / 0   5,096.46 / 0
+2026-01  n/a / n/a  n/a / n/a  n/a / n/a  n/a / n/a  5,010.59 / 16  4,920.13 / 16
+2026-02  n/a / n/a  n/a / n/a  n/a / n/a  n/a / n/a  5,167.50 / 16  5,142.00 / 16
+2026-03  n/a / n/a  n/a / n/a  n/a / n/a  n/a / n/a  5,491.34 / 16  5,517.55 / 16
+2026-04  n/a / n/a  n/a / n/a  n/a / n/a  n/a / n/a  5,544.54 / 16  5,504.12 / 16
+
+================================================================================
+3. COMPACT SUMMARY
+================================================================================
+   version   rows  mkts    last  col_diffs goat_2024-06 goat_2026-04 obs_2022-10..2024-06 obs_2025-12..2026-04 peak_month peak_value
+2024-01-23 11,685    57 2024-01         42          n/a          n/a                  n/a                  n/a        n/a        n/a
+2025-01-13 13,454    62 2025-01         28          n/a          n/a                  n/a                  n/a        n/a        n/a
+2026-01-13 51,754   226 2026-01         28          n/a          n/a                  n/a                  n/a        n/a        n/a
+2026-03-10 52,206   226 2026-03         28          n/a          n/a                  n/a                  n/a        n/a        n/a
+2026-09-28 55,221   233 2026-09          0        5,058        5,545                   64                   64    2024-01     20,694
+2026-10-05 55,454   233 2026-10          0        5,459        5,504                   64                   64    2024-01     22,299

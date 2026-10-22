@@ -12,14 +12,25 @@ All numbers come from [`docs/audit_findings.md`](docs/audit_findings.md), where 
 
 1. **Most market-months have no observed price.** Every one of the 233 markets has all 238 months, but only 49 markets have at least one observed price; 184 never do. The observed price columns are missing in 96.72% of rows (beans), 95.33% (goat) and 94.53% (maize).
 2. **Where an observed price exists, `c_*` usually matches it exactly.** Exact matches: 86.2% of observed rows for beans, 93.5% for maize and 93.3% for goat. Correlations: 0.9799, 0.9948 and 0.9951.
-3. **There are no observed maize or goat prices from February 2023 to December 2025.** They stop after January 2023, have 0 rows in that period, and resume in January 2026. Beans continue through it (357 observed rows).
+3. **There are no observed maize or goat prices from February 2023 to December 2025 in the maize_fao and goat columns of release 2026-10-05.** They stop after January 2023, have 0 rows in that period, and resume in January 2026. Beans continue through it (357 observed rows).
 4. **During that gap, the median goat `c_` price rises well above any observed goat price.** The highest observed goat price anywhere is 8,028 KES. The cross-market median `c_livestock_goat_s_fao` rises from 3,234 in January 2023 to 22,299 in January 2024, and all 233 markets are above 8,028 in every month from August 2023 to March 2024. From June 2024 to December 2025 the median settles at 5,022–5,532. When observations resume, the observed medians for January to March 2026 (5,224 / 5,132 / 5,650) cover only the 16 markets that reported. The `c_` medians for those same markets are identical; the `c_` medians across all 233 markets (4,920 / 5,142 / 5,518) include the 217 markets that did not report, so they are not like-for-like with the observed medians.
 5. **The food price index peaks over the same period.** The cross-market median `c_food_price_index` is 7.58 in January 2024, against 1.13 in January 2023 and 1.83 in June 2025. Over the same three months, median maize goes 85.00 → 76.99 → 87.74 and median beans 139.31 → 177.13 → 150.72. `inflation_*` equals the 12-month % change of `c_*` to within 0.145 percentage points for beans, maize and goat, but differs by up to 10.294 percentage points for the food price index.
 6. **Observed maize prices in the reporting markets fell from January to August 2026.** The median observed maize price in the 16 markets that reported fell from 83.0 KES per kg in January 2026 to 56.0 in August 2026. How those markets were chosen isn't documented in the file, so they shouldn't be read as a random sample of Kenyan markets.
 
+## Earlier releases
+
+From section 12 of [`docs/audit_findings.md`](docs/audit_findings.md):
+
+- Only the two newest releases (2026-09-28 and 2026-10-05) contain goat columns.
+- Item names and market counts differ across releases (57 markets in 2024-01-23, 233 now), so releases are not directly comparable.
+- Between 2026-09-28 and 2026-10-05, the median goat estimate (`c_livestock_goat_s_fao`) moved about 1% in the two months checked that have observed prices (October 2022, January 2023) and 8–13% in the four months checked in the no-observation window (June 2023, December 2023, January 2024, June 2024).
+- Release 2024-01-23 lists observed maize prices (97 rows in 12 markets from 2023-01 to 2023-12) under a column named maize; why this differs from the current file is not established.
+
+Section 12 also compares the maize series across releases; that comparison is not yet interpreted.
+
 ## Charts
 
-The shaded period in the first and third charts is February 2023 to December 2025, when there are no observed goat or maize prices.
+The shaded period in the first and third charts is February 2023 to December 2025, when there are no observed goat or maize prices in the maize_fao and goat columns of release 2026-10-05.
 
 ![Monthly cross-market medians of goat, maize, beans and the food price index](outputs/figures/check_medians.png)
 
@@ -36,6 +47,7 @@ Copied from [`docs/audit_findings.md`](docs/audit_findings.md):
 - That some `adm1_name`/`adm2_name` values (e.g. "Moyale", "Ongata Rongai", "Hola (Tana River)") may not match the administrative level of other entries: based on my knowledge of Kenyan geography, not checked against a boundary file.
 - Why `Market Average` sits 7–9% below the simple mean (likely a weighted or geometric mean).
 - Whether the close agreement between observed and `c_` prices where both exist reflects accuracy or simply that the model was fitted to those observations: not tested here, since no independent observations were used.
+- Why maize differs across releases (units or item definitions): not established.
 
 ## Reproducing this
 

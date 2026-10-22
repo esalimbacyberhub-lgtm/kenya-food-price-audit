@@ -2,7 +2,7 @@
 
 Every number below was produced by the command shown directly beneath it, run from the project root against the unmodified raw file. Outputs are pasted verbatim. "Markets" means the 233 real markets unless a command says otherwise; `Market Average` is excluded where noted in the code.
 
-Charts: `python3 scripts/plot_checks.py` writes `outputs/figures/check_medians.png`, `check_obs_vs_close.png` and `check_obs_counts.png`. The shaded period in the first and third is 2023-02 to 2025-12 (no observed goat or maize prices; see section 5).
+Charts: `python3 scripts/plot_checks.py` writes `outputs/figures/check_medians.png`, `check_obs_vs_close.png` and `check_obs_counts.png`. The shaded period in the first and third is 2023-02 to 2025-12 (no observed goat or maize prices in the maize_fao and goat columns of release 2026-10-05; see section 5).
 
 ## Raw file checksum
 
@@ -167,7 +167,7 @@ livestock_goat_s_fao   trust==10 & no obs  1340   obs & trust<10  2210
 
 ## 5. Observation gap for goat and maize
 
-- Observed maize and goat prices stop after **2023-01**, have **0** rows from 2023-02 to 2025-12, resume in **2026-01**, and last appear in **2026-08**.
+- In the maize_fao and goat columns of release 2026-10-05, observed maize and goat prices stop after **2023-01**, have **0** rows from 2023-02 to 2025-12, resume in **2026-01**, and last appear in **2026-08**.
 - Beans continue through the gap (357 observed rows in Feb 2023 – Dec 2025); last beans observation 2026-09 (4 markets).
 - 2026-10 has no observed prices for any item.
 
@@ -506,6 +506,174 @@ maize only: []
 goat only: []
 ```
 
+## 12. Comparison with earlier releases
+
+The commands in this section also read the archived releases in `data/raw/versions/`. `Market Average` is excluded everywhere except the first `rows` count. "% change" is (2026-10-05 value / earlier value − 1) × 100.
+
+### Goat columns, rows and markets
+
+- Goat columns appear only in 2026-09-28 and 2026-10-05 (7 columns each, including `c_livestock_goat_s_fao`). The four earlier releases (2024-01-23, 2025-01-13, 2026-01-13, 2026-03-10) have none.
+- Rows excluding `Market Average` / markets: 11,685 / 57 (2024-01-23), 13,454 / 62 (2025-01-13), 51,754 / 226 (2026-01-13), 52,206 / 226 (2026-03-10), 55,221 / 233 (2026-09-28), 55,454 / 233 (2026-10-05).
+
+```bash
+python3 -I - <<'EOF'
+import glob, pandas as pd
+paths = sorted(glob.glob("data/raw/versions/*/KEN_RTFP_mkt_*.csv")) + ["data/raw/KEN_RTFP_mkt_2007_2026-10-05.csv"]
+for p in paths:
+    df = pd.read_csv(p, parse_dates=["price_date"], low_memory=False)
+    mk = df[df.mkt_name != "Market Average"]
+    goat = [c for c in df if "goat" in c]
+    print(f"{p[-14:-4]}  rows {len(df):>6,}  rows excl. Market Average {len(mk):>6,}  markets {mk.mkt_name.nunique():>3}  "
+          f"last month {df.price_date.max():%Y-%m}  goat columns {len(goat)}  has c_livestock_goat_s_fao {'c_livestock_goat_s_fao' in df}")
+EOF
+```
+
+Output:
+
+```
+2024-01-23  rows 11,890  rows excl. Market Average 11,685  markets  57  last month 2024-01  goat columns 0  has c_livestock_goat_s_fao False
+2025-01-13  rows 13,671  rows excl. Market Average 13,454  markets  62  last month 2025-01  goat columns 0  has c_livestock_goat_s_fao False
+2026-01-13  rows 51,983  rows excl. Market Average 51,754  markets 226  last month 2026-01  goat columns 0  has c_livestock_goat_s_fao False
+2026-03-10  rows 52,437  rows excl. Market Average 52,206  markets 226  last month 2026-03  goat columns 0  has c_livestock_goat_s_fao False
+2026-09-28  rows 55,458  rows excl. Market Average 55,221  markets 233  last month 2026-09  goat columns 7  has c_livestock_goat_s_fao True
+2026-10-05  rows 55,692  rows excl. Market Average 55,454  markets 233  last month 2026-10  goat columns 7  has c_livestock_goat_s_fao True
+```
+
+### Goat: 2026-09-28 vs 2026-10-05
+
+Median `c_livestock_goat_s_fao` across the 233 markets:
+
+| Month | 2026-09-28 | 2026-10-05 | % change |
+|---|---|---|---|
+| 2022-10 | 2,770.34 | 2,796.03 | +0.93 |
+| 2023-01 | 3,199.72 | 3,234.16 | +1.08 |
+| 2023-06 | 8,374.92 | 9,431.62 | +12.62 |
+| 2023-12 | 16,691.05 | 18,633.41 | +11.64 |
+| 2024-01 | 20,693.55 | 22,298.97 | +7.76 |
+| 2024-06 | 5,057.99 | 5,459.14 | +7.93 |
+
+```bash
+python3 -I - <<'EOF'
+import pandas as pd
+months = ["2022-10", "2023-01", "2023-06", "2023-12", "2024-01", "2024-06"]
+med = {}
+for name, p in [("2026-09-28", "data/raw/versions/2026-09-28/KEN_RTFP_mkt_2007_2026-09-28.csv"),
+                ("2026-10-05", "data/raw/KEN_RTFP_mkt_2007_2026-10-05.csv")]:
+    df = pd.read_csv(p, parse_dates=["price_date"], low_memory=False)
+    df = df[df.mkt_name != "Market Average"]
+    print(name, "markets", df.mkt_name.nunique())
+    med[name] = df.groupby(df.price_date.dt.strftime("%Y-%m")).c_livestock_goat_s_fao.median()
+t = pd.DataFrame(med).loc[months]
+t["pct_change"] = 100 * (t["2026-10-05"] / t["2026-09-28"] - 1)
+print(t.round(2).to_string())
+EOF
+```
+
+Output:
+
+```
+2026-09-28 markets 233
+2026-10-05 markets 233
+            2026-09-28  2026-10-05  pct_change
+price_date                                    
+2022-10        2770.34     2796.03        0.93
+2023-01        3199.72     3234.16        1.08
+2023-06        8374.92     9431.62       12.62
+2023-12       16691.05    18633.41       11.64
+2024-01       20693.55    22298.97        7.76
+2024-06        5057.99     5459.14        7.93
+```
+
+### Maize, 2022-10 to 2024-01
+
+The maize column is `maize` in 2024-01-23 and 2025-01-13, `maize_fao` in 2026-01-13, both in 2026-03-10, and `maize_fao` in 2026-09-28 and 2026-10-05. Each column is compared separately with `maize_fao` / `c_maize_fao` in 2026-10-05, matching on market and month.
+
+- Median % change in the modelled price (`c_`) per matched market-month: +30.04 (2024-01-23 `maize`), +10.19 (2025-01-13 `maize`), −99.85 (2026-01-13 `maize_fao`), +30.39 (2026-03-10 `maize`), −99.84 (2026-03-10 `maize_fao`), −0.47 (2026-09-28 `maize_fao`).
+- Every matched market-month differs in the four earlier releases; 3,657 of 3,728 differ between 2026-09-28 and 2026-10-05 (range −22.43% to +19.54%).
+- The cross-market median `c_` in 2026-01-13 and 2026-03-10 `maize_fao` is 42,943.22 to 65,363.22 per month, against 76.99 to 85.93 in 2026-10-05.
+- Observed prices: 2024-01-23 has 97 observed maize rows in 12 markets across 10 months from 2023-01 to 2023-12. 2026-10-05 has 64 rows in 16 markets, 2022-10 to 2023-01 only. No market-month has an observed price in both files. The 64 observed values in 2026-09-28 are identical to 2026-10-05.
+
+```bash
+python3 -I - <<'EOF'
+import glob, pandas as pd
+paths = sorted(glob.glob("data/raw/versions/*/KEN_RTFP_mkt_*.csv")) + ["data/raw/KEN_RTFP_mkt_2007_2026-10-05.csv"]
+key = ["mkt_name", "price_date"]
+def window(p):
+    df = pd.read_csv(p, parse_dates=["price_date"], low_memory=False)
+    return df[(df.mkt_name != "Market Average") & df.price_date.between("2022-10-01", "2024-01-01")]
+cur = window(paths[-1])[key + ["maize_fao", "c_maize_fao"]].rename(columns={"maize_fao": "obs_cur", "c_maize_fao": "c_cur"})
+med = {}
+for p in paths:
+    d = window(p)
+    for col in [c for c in ["maize", "maize_fao"] if c in d]:
+        name = f"{p[-14:-4]} {col}"
+        med[name] = d.groupby(d.price_date.dt.strftime("%Y-%m"))[f"c_{col}"].median()
+        o = d[d[col].notna()]
+        m = d[key + [col, f"c_{col}"]].rename(columns={col: "obs", f"c_{col}": "c"}).merge(cur, on=key)
+        pc = 100 * (m.c_cur / m.c - 1)
+        both = m.obs.notna() & m.obs_cur.notna()
+        print(name)
+        print(f"  observed rows {len(o)}, markets {o.mkt_name.nunique()}, months {sorted(o.price_date.dt.strftime('%Y-%m').unique())}")
+        print(f"  market-months matched to 2026-10-05: {len(m)} ({m.mkt_name.nunique()} markets); observed in both {both.sum()}, differing {(m.obs[both] != m.obs_cur[both]).sum()}")
+        print(f"  c_ % change to 2026-10-05: median {pc.median():+.2f}, min {pc.min():+.2f}, max {pc.max():+.2f}, rows differing {(pc != 0).sum()}")
+print("\nmonthly median of c_ across markets")
+print(pd.DataFrame(med).round(2).to_string())
+EOF
+```
+
+Output:
+
+```
+2024-01-23 maize
+  observed rows 97, markets 12, months ['2023-01', '2023-02', '2023-03', '2023-04', '2023-05', '2023-06', '2023-07', '2023-10', '2023-11', '2023-12']
+  market-months matched to 2026-10-05: 912 (57 markets); observed in both 0, differing 0
+  c_ % change to 2026-10-05: median +30.04, min -33.33, max +171.34, rows differing 912
+2025-01-13 maize
+  observed rows 0, markets 0, months []
+  market-months matched to 2026-10-05: 992 (62 markets); observed in both 0, differing 0
+  c_ % change to 2026-10-05: median +10.19, min -32.32, max +100.64, rows differing 992
+2026-01-13 maize_fao
+  observed rows 6, markets 2, months ['2022-10', '2022-11', '2022-12', '2023-01']
+  market-months matched to 2026-10-05: 3616 (226 markets); observed in both 0, differing 0
+  c_ % change to 2026-10-05: median -99.85, min -99.91, max -99.68, rows differing 3616
+2026-03-10 maize
+  observed rows 0, markets 0, months []
+  market-months matched to 2026-10-05: 3616 (226 markets); observed in both 0, differing 0
+  c_ % change to 2026-10-05: median +30.39, min -25.32, max +113.63, rows differing 3616
+2026-03-10 maize_fao
+  observed rows 6, markets 2, months ['2022-10', '2022-11', '2022-12', '2023-01']
+  market-months matched to 2026-10-05: 3616 (226 markets); observed in both 0, differing 0
+  c_ % change to 2026-10-05: median -99.84, min -99.92, max -99.67, rows differing 3616
+2026-09-28 maize_fao
+  observed rows 64, markets 16, months ['2022-10', '2022-11', '2022-12', '2023-01']
+  market-months matched to 2026-10-05: 3728 (233 markets); observed in both 64, differing 0
+  c_ % change to 2026-10-05: median -0.47, min -22.43, max +19.54, rows differing 3657
+2026-10-05 maize_fao
+  observed rows 64, markets 16, months ['2022-10', '2022-11', '2022-12', '2023-01']
+  market-months matched to 2026-10-05: 3728 (233 markets); observed in both 64, differing 0
+  c_ % change to 2026-10-05: median +0.00, min +0.00, max +0.00, rows differing 0
+
+monthly median of c_ across markets
+            2024-01-23 maize  2025-01-13 maize  2026-01-13 maize_fao  2026-03-10 maize  2026-03-10 maize_fao  2026-09-28 maize_fao  2026-10-05 maize_fao
+price_date                                                                                                                                              
+2022-10                44.00             60.90              42943.22             64.00              49175.72                 85.20                 85.64
+2022-11                46.78             60.98              43419.98             62.96              47721.96                 84.70                 85.90
+2022-12                49.73             61.52              44326.14             64.26              48216.71                 83.00                 84.68
+2023-01                57.27             63.03              45634.27             63.74              48367.92                 85.28                 85.00
+2023-02                59.86             63.39              46163.77             63.88              48516.85                 81.41                 83.86
+2023-03                63.13             65.47              48596.90             64.04              48712.07                 79.64                 85.51
+2023-04                65.58             69.85              53065.28             63.16              50161.79                 79.55                 81.99
+2023-05                66.43             73.31              56022.24             63.06              51117.70                 80.72                 83.77
+2023-06                67.18             77.65              56981.70             62.43              51680.75                 82.58                 85.51
+2023-07                69.37             80.94              57367.48             62.75              51756.39                 82.90                 85.93
+2023-08                68.09             79.67              58188.28             62.37              52083.14                 83.84                 83.99
+2023-09                66.17             79.54              59622.74             62.41              52220.22                 81.70                 81.56
+2023-10                65.69             78.47              60517.45             62.36              52197.00                 80.81                 81.54
+2023-11                62.67             81.34              62349.00             62.14              52686.40                 80.22                 79.98
+2023-12                59.85             79.49              63256.37             62.68              52688.10                 79.62                 78.25
+2024-01                61.02             76.28              65363.22             62.06              54503.41                 79.12                 76.99
+```
+
 ## Corrections to earlier statements
 
 - Observed maize and goat prices were first reported as stopping in May 2023. They stop after **January 2023** (section 5).
@@ -519,3 +687,4 @@ goat only: []
 - That some `adm1_name`/`adm2_name` values (e.g. "Moyale", "Ongata Rongai", "Hola (Tana River)") may not match the administrative level of other entries: based on my knowledge of Kenyan geography, not checked against a boundary file.
 - Why `Market Average` sits 7–9% below the simple mean (likely a weighted or geometric mean).
 - Whether the close agreement between observed and `c_` prices where both exist reflects accuracy or simply that the model was fitted to those observations: not tested here, since no independent observations were used.
+- Why maize differs across releases (units or item definitions): not established.
